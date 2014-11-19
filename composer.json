@@ -1,0 +1,24 @@
+{
+	"name": "fuelphp/asset",
+	"type": "library",
+	"description": "FuelPHP Asset package",
+	"keywords": ["asset", "javascript", "css"],
+	"homepage": "https://github.com/fuelphp/asset",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "FuelPHP Development Team",
+			"email": "team@fuelphp.com"
+		}
+	],
+	"require": {
+		"php": ">=5.4",
+		"fuelphp/common": "dev-master"
+	},
+	"require-dev": {
+		"codeception/codeception": "~2.0.0"
+	},
+	"autoload": {
+		"psr-4": { "Fuel\\Asset\\": "src/" }
+	}
+}
