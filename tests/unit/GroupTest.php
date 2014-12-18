@@ -22,18 +22,50 @@ class GroupTest extends Test
 
 	protected function _before()
 	{
-		$this->group = new Group;
+		$this->group = new Group([]);
 	}
 
-	public function testAddAndGetPath()
+	public function testAddFiles()
 	{
-		$path = 'foo/bar/baz/bat';
+		$files = ['a.css', 'b.css'];
 
-		$this->group->addPath($path);
+		$this->group->setFiles($files);
 
-		$this->assertContains(
-			$path,
-			$this->group->getPaths()
+		$this->assertEquals(
+			$files,
+			$this->group->getFiles()
+		);
+	}
+
+	public function testAddFile()
+	{
+		$file = 'a.css';
+
+		$this->group->addFile($file);
+
+		$this->assertEquals(
+			[$file],
+			$this->group->getFiles()
+		);
+	}
+
+	public function testMergeFileList()
+	{
+		$files1 = ['a.css'];
+		$files2 = ['b.css'];
+
+		$this->group->addFiles($files1);
+
+		$this->assertEquals(
+			$files1,
+			$this->group->getFiles()
+		);
+
+		$this->group->addFiles($files2);
+
+		$this->assertEquals(
+			['a.css', 'b.css'],
+			$this->group->getFiles()
 		);
 	}
 

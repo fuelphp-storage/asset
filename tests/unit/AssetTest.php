@@ -26,32 +26,6 @@ class AssetTest extends Test
 		$this->asset = new Asset;
 	}
 
-	public function testGroupAddAndGet()
-	{
-		$name = 'test';
-		$group = new Group;
-
-		$this->asset->addGroup($group, $name);
-
-		$this->assertEquals(
-			$group,
-			$this->asset->getGroup($name)
-		);
-
-		$this->assertContains(
-			$group,
-			$this->asset->getGroups()
-		);
-	}
-
-	/**
-	 * @expectedException IndexOutOfBoundsException
-	 */
-	public function testGetInvalidGroup()
-	{
-		$this->asset->getGroup('not here');
-	}
-
 	public function testTypeAddAndGet()
 	{
 		$name = 'css';
@@ -76,6 +50,46 @@ class AssetTest extends Test
 	public function testGetInvalidType()
 	{
 		$this->asset->getType('not here');
+	}
+
+	/**
+	 * @expectedException IndexOutOfBoundsException
+	 */
+	public function testGetInvalidGroup()
+	{
+		$this->asset->getGroup('css', 'not here');
+	}
+
+	/**
+	 * @expectedException IndexOutOfBoundsException
+	 */
+	public function testGetInvalidGroupWithInvalidType()
+	{
+		$this->asset->getGroup('not a valid type', 'not here');
+	}
+
+	public function testAddFileToDefaultGroup()
+	{
+		$file = 'test.css';
+
+		$this->asset->addFile($file, 'css');
+
+		$this->assertEquals(
+			[$file],
+			$this->asset->getGroup('css')->getFiles()
+		);
+	}
+
+	public function testAddMultipleFilesToDefaultGroup()
+	{
+		$files = ['test.css', 'a.css'];
+
+		$this->asset->addFiles($files, 'css');
+
+		$this->assertEquals(
+			$files,
+			$this->asset->getGroup('css')->getFiles()
+		);
 	}
 
 }

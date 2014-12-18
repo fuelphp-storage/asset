@@ -11,44 +11,65 @@
 namespace Fuel\Asset;
 
 /**
- * Defines a group of assets.
+ * Defines a collection of asset files.
  *
  * @package Fuel\Asset
- * @since   2.0
  */
 class Group
 {
 
 	/**
-	 * Contains our file paths.
-	 * Can be individual files or globs.
+	 * Contains the group's files
 	 *
 	 * @var array
-	 */
-	protected $paths = [];
-
-	/**
-	 * Adds a new path to the group.
-	 *
-	 * @param string $path
 	 *
 	 * @since 2.0
 	 */
-	public function addPath($path)
+	protected $files = [];
+
+	public function __construct($files)
 	{
-		$this->paths[] = $path;
+		$this->files = $files;
 	}
 
 	/**
-	 * Gets the group's registered paths.
-	 *
 	 * @return array
 	 *
 	 * @since 2.0
 	 */
-	public function getPaths()
+	public function getFiles()
 	{
-		return $this->paths;
+		return $this->files;
+	}
+
+	/**
+	 * @param array $files
+	 *
+	 * @since 2.0
+	 */
+	public function setFiles($files)
+	{
+		$this->files = $files;
+	}
+
+	/**
+	 * @param $file
+	 *
+	 * @since 2.0
+	 */
+	public function addFile($file)
+	{
+		$this->files[] = $file;
+	}
+
+	/**
+	 * @param $files
+	 *
+	 * @since 2.0
+	 */
+	public function addFiles($files)
+	{
+		$this->files = array_merge($this->files, $files);
 	}
 
 }

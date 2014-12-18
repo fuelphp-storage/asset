@@ -28,14 +28,14 @@ class Asset
 	protected $types = [];
 
 	/**
-	 * Contains groups of assets.
+	 * Contains our known groups, indexed by asset type.
 	 *
-	 * @var Group[]
+	 * @var Group[][]
 	 */
 	protected $groups = [];
 
 	/**
-	 * Name of our default group.
+	 * Name of the default asset groups.
 	 *
 	 * @var string
 	 */
@@ -43,53 +43,8 @@ class Asset
 
 	public function __construct()
 	{
-		$this->types[$this->defaultGroupName] = new Group;
-	}
-
-	/**
-	 * Adds a new group of assets.
-	 *
-	 * @param Group  $group
-	 * @param string $name
-	 *
-	 * @since 2.0
-	 */
-	public function addGroup(Group $group, $name)
-	{
-		$this->groups[$name] = $group;
-	}
-
-	/**
-	 * Gets a group by name.
-	 *
-	 * @param string $name
-	 *
-	 * @return Group
-	 *
-	 * @since  2.0
-	 *
-	 * @throws IndexOutOfBoundsException
-	 */
-	public function getGroup($name)
-	{
-		if ( ! isset($this->groups[$name]))
-		{
-			throw new IndexOutOfBoundsException("ASS-001: Unknown group name: [$name]");
-		}
-
-		return $this->groups[$name];
-	}
-
-	/**
-	 * Gets all groups.
-	 *
-	 * @return Group[]
-	 *
-	 * @since 2.0
-	 */
-	public function getGroups()
-	{
-		return $this->groups;
+		$this->groups['css'][$this->defaultGroupName] = new Group([]);
+		$this->groups['js'][$this->defaultGroupName] = new Group([]);
 	}
 
 	/**
@@ -120,7 +75,7 @@ class Asset
 	{
 		if ( ! isset($this->types[$name]))
 		{
-			throw new IndexOutOfBoundsException("ASS-002: Unknown asset type: [$name]");
+			throw new IndexOutOfBoundsException("ASS-001: Unknown asset type: [$name]");
 		}
 
 		return $this->types[$name];
@@ -139,27 +94,72 @@ class Asset
 	}
 
 	/**
-	 * Gets the HTML to insert the assets of the given type and group.
+	 * Add a file to the given group.
 	 *
-	 * @param string $type  Type of asset to fetch
-	 * @param string $group Optional group name to fetch
+	 * @param string $file  Name of the file to add.
+	 * @param string $type  Type of file that is being added, css, js, etc.
+	 * @param string $group Optional name of the group to add to, if none specified the default group will be used.
 	 *
 	 * @since 2.0
 	 */
-	public function get($type, $group = null)
+	public function addFile($file, $type, $group = null)
 	{
-		// Work out our group list
+		$this->getGroup($type, $group)
+			->addFile($file);
+	}
 
-		// get the list of files from the groups
+	/**
+	 * Adds multiple files to the given group.
+	 *
+	 * @param string $files Names of the files to add.
+	 * @param string $type  Type of file that is being added, css, js, etc.
+	 * @param string $group Optional name of the group to add to, if none specified the default group will be used.
+	 *
+	 * @since 2.0
+	 */
+	public function addFiles($files, $type, $group = null)
+	{
+		$this->getGroup($type, $group)
+			->addFiles($files);
+	}
 
-		// Pass the groups through any of the filters defined in the type
+	/**
+	 * Gets an asset group.
+	 *
+	 * @param string $type
+	 * @param string $group
+	 *
+	 * @return Group
+	 *
+	 * @since 2.0
+	 *
+	 * @throws IndexOutOfBoundsException
+	 */
+	public function getGroup($type, $group = null)
+	{
+		if ($group === null)
+		{
+			$group = $this->defaultGroupName;
+		}
 
-		// Write out to the cache if enabled
+		if ( ! isset($this->groups[$type][$group]))
+		{
+			throw new IndexOutOfBoundsException('ASS-002: unknown group ['.$group.'] for ['.$type.']');
+		}
 
-			// IF cache enabled
-				// Output single asset
-			// ELSE
-				// Output for each file needed
+		return $this->groups[$type][$group];
+	}
+
+	/**
+	 * Gets the HTML to insert the assets of the given type and groupName.
+	 *
+	 * @param string $type      Type of asset to fetch
+	 * @param string $groupName Optional groupName name to fetch
+	 *
+	 * @since 2.0
+	 */
+	public function get($type, $groupName = null)
+	{
 	}
 
 	// Types of asset
@@ -185,6 +185,6 @@ class Asset
 	// Take a list of groups
 	// Work out the order to load them in
 	// Work out a list of files from the sorted groups
-	// Process the files in the group
+	// Process the files in the groupName
 	// save that somewhere
 }
