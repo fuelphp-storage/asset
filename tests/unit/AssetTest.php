@@ -23,7 +23,7 @@ class AssetTest extends Test
 
 	protected function _before()
 	{
-		$this->asset = new Asset;
+		$this->asset = new Asset('');
 	}
 
 	public function testTypeAddAndGet()
@@ -89,6 +89,50 @@ class AssetTest extends Test
 		$this->assertEquals(
 			$files,
 			$this->asset->getGroup('css')->getFiles()
+		);
+	}
+
+	public function testBaseURL()
+	{
+		$name = 'foobar';
+		$_SERVER['SERVER_NAME'] = $name;
+		$asset = new Asset('', null);
+
+		$this->assertEquals(
+			$name,
+			$asset->getBaseURL()
+		);
+
+		$asset = new Asset('', $name);
+		$this->assertEquals(
+			$name,
+			$asset->getBaseURL()
+		);
+
+		$asset = new Asset('');
+		$asset->setBaseURL($name);
+		$this->assertEquals(
+			$name,
+			$asset->getBaseURL()
+		);
+	}
+
+	public function testDocroot()
+	{
+		$name = 'foobar';
+		$asset = new Asset($name);
+
+		$this->assertEquals(
+			$name,
+			$asset->getDocroot()
+		);
+
+		$newName = 'bazbat';
+		$asset->setDocroot($newName);
+
+		$this->assertEquals(
+			$newName,
+			$asset->getDocroot()
 		);
 	}
 

@@ -28,7 +28,7 @@ class Asset
 	protected $types = [];
 
 	/**
-	 * Contains our known groups, indexed by asset type.
+	 * Contains our known groups, indexed by asset type then name.
 	 *
 	 * @var Group[][]
 	 */
@@ -41,10 +41,34 @@ class Asset
 	 */
 	protected $defaultGroupName = '__default__';
 
-	public function __construct()
+	/**
+	 * Contains the path to our web root, this is where all asset files should be placed for serving
+	 *
+	 * @var string
+	 */
+	protected $docroot;
+
+	/**
+	 * Contains the base URL of the site, this will be automatically detected if not set.
+	 */
+	protected $baseURL;
+
+	/**
+	 * @param string $docroot
+	 * @param string $baseURL
+	 */
+	public function __construct($docroot, $baseURL = null)
 	{
+		$this->docroot = $docroot;
 		$this->groups['css'][$this->defaultGroupName] = new Group([]);
 		$this->groups['js'][$this->defaultGroupName] = new Group([]);
+
+		if ($baseURL === null)
+		{
+			$baseURL = isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : '' ;
+		}
+
+		$this->baseURL = $baseURL;
 	}
 
 	/**
@@ -144,10 +168,42 @@ class Asset
 
 		if ( ! isset($this->groups[$type][$group]))
 		{
-			throw new IndexOutOfBoundsException('ASS-002: unknown group ['.$group.'] for ['.$type.']');
+			throw new IndexOutOfBoundsException('ASS-002: Unknown group ['.$group.'] for ['.$type.']');
 		}
 
 		return $this->groups[$type][$group];
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getDocroot()
+	{
+		return $this->docroot;
+	}
+
+	/**
+	 * @param string $docroot
+	 */
+	public function setDocroot($docroot)
+	{
+		$this->docroot = $docroot;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getBaseURL()
+	{
+		return $this->baseURL;
+	}
+
+	/**
+	 * @param mixed $baseURL
+	 */
+	public function setBaseURL($baseURL)
+	{
+		$this->baseURL = $baseURL;
 	}
 
 	/**
@@ -162,29 +218,4 @@ class Asset
 	{
 	}
 
-	// Types of asset
-		// Has extension
-		// Assign processors to types
-			// Caching of processed files
-
-	// Files
-	// Folders
-	// Remote
-
-	// Groups
-		// One type
-		// Dependencies
-
-	// Output
-		// Group
-		// single file
-
-
-	// Flow
-
-	// Take a list of groups
-	// Work out the order to load them in
-	// Work out a list of files from the sorted groups
-	// Process the files in the groupName
-	// save that somewhere
 }
