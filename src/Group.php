@@ -25,9 +25,9 @@ class Group
 	 *
 	 * @since 2.0
 	 */
-	protected $files = [];
+	protected $files;
 
-	public function __construct($files)
+	public function __construct($files = [])
 	{
 		$this->files = $files;
 	}

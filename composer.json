@@ -12,7 +12,8 @@
 		}
 	],
 	"require": {
-		"php": ">=5.4"
+		"php": ">=5.4",
+		"fuelphp/filesystem": "dev-master"
 	},
 	"require-dev": {
 		"codeception/codeception": "~2.0.0"

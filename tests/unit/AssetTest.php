@@ -26,32 +26,6 @@ class AssetTest extends Test
 		$this->asset = new Asset('');
 	}
 
-	public function testTypeAddAndGet()
-	{
-		$name = 'css';
-		$type = new Type;
-
-		$this->asset->addType($name, $type);
-
-		$this->assertEquals(
-			$type,
-			$this->asset->getType($name)
-		);
-
-		$this->assertContains(
-			$type,
-			$this->asset->getTypes()
-		);
-	}
-
-	/**
-	 * @expectedException IndexOutOfBoundsException
-	 */
-	public function testGetInvalidType()
-	{
-		$this->asset->getType('not here');
-	}
-
 	/**
 	 * @expectedException IndexOutOfBoundsException
 	 */
@@ -133,6 +107,20 @@ class AssetTest extends Test
 		$this->assertEquals(
 			$newName,
 			$asset->getDocroot()
+		);
+	}
+
+	public function testGetSingleCss()
+	{
+		$this->asset->setBaseURL('test.com');
+		$this->asset->setDocroot(__DIR__.'/../_output/docroot');
+		$this->asset->addPath(__DIR__.'/../resources');
+
+		$this->asset->addFile('a.css', 'css');
+
+		$this->assertXmlStringEqualsXmlString(
+			'<link rel="stylesheet" type="text/css" href="//test.com/css/a.css" />',
+			$this->asset->get('css')
 		);
 	}
 

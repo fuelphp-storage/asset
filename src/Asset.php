@@ -10,6 +10,7 @@
 
 namespace Fuel\Asset;
 
+use Fuel\FileSystem\Finder;
 use IndexOutOfBoundsException;
 
 /**
@@ -19,13 +20,6 @@ use IndexOutOfBoundsException;
  */
 class Asset
 {
-
-	/**
-	 * Contains known asset types.
-	 *
-	 * @var Type[]
-	 */
-	protected $types = [];
 
 	/**
 	 * Contains our known groups, indexed by asset type then name.
@@ -54,11 +48,25 @@ class Asset
 	protected $baseURL;
 
 	/**
+	 * Contains the Finder instance used to locate asset files with.
+	 *
+	 * @var Finder
+	 */
+	protected $finder;
+
+	/**
 	 * @param string $docroot
 	 * @param string $baseURL
 	 */
-	public function __construct($docroot, $baseURL = null)
+	public function __construct($docroot, $baseURL = null, Finder $finder = null)
 	{
+		if ($finder === null)
+		{
+			$finder = new Finder;
+		}
+
+		$this->finder = $finder;
+
 		$this->docroot = $docroot;
 		$this->groups['css'][$this->defaultGroupName] = new Group([]);
 		$this->groups['js'][$this->defaultGroupName] = new Group([]);
@@ -72,49 +80,13 @@ class Asset
 	}
 
 	/**
-	 * Adds an asset type.
+	 * Adds a path that contains asset files
 	 *
-	 * @param string $name
-	 * @param Type   $type
-	 *
-	 * @since 2.0
+	 * @param string $path
 	 */
-	public function addType($name, Type $type)
+	public function addPath($path)
 	{
-		$this->types[$name] = $type;
-	}
-
-	/**
-	 * Gets information on an asset type.
-	 *
-	 * @param string $name
-	 *
-	 * @return Type
-	 *
-	 * @since 2.0
-	 *
-	 * @throws IndexOutOfBoundsException
-	 */
-	public function getType($name)
-	{
-		if ( ! isset($this->types[$name]))
-		{
-			throw new IndexOutOfBoundsException("ASS-001: Unknown asset type: [$name]");
-		}
-
-		return $this->types[$name];
-	}
-
-	/**
-	 * Gets all known asset type definitions.
-	 *
-	 * @return Type[]
-	 *
-	 * @since 2.0
-	 */
-	public function getTypes()
-	{
-		return $this->types;
+		$this->finder->addPath($path);
 	}
 
 	/**
@@ -168,7 +140,7 @@ class Asset
 
 		if ( ! isset($this->groups[$type][$group]))
 		{
-			throw new IndexOutOfBoundsException('ASS-002: Unknown group ['.$group.'] for ['.$type.']');
+			throw new IndexOutOfBoundsException('ASS-001: Unknown group ['.$group.'] for ['.$type.']');
 		}
 
 		return $this->groups[$type][$group];
@@ -216,6 +188,30 @@ class Asset
 	 */
 	public function get($type, $groupName = null)
 	{
+		$group = $this->getGroup($type, $groupName);
+
+		// TODO: move file path fetching into filers so pre-processing can happen
+		$tags = '';
+
+		foreach ($group->getFiles() as $file)
+		{
+			// Get the path of the file
+			$filePath = $this->finder->find($type.'/'.$file);
+
+			// Copy that to our output directory if needed
+			$outputDir = $this->docroot.'/'.$type;
+			if ( ! is_dir($outputDir))
+			{
+				mkdir($outputDir, 0777, true);
+			}
+
+			copy($filePath, $outputDir.'/'.$file);
+
+			// Build the html tag
+			$tags .= "<link rel=\"stylesheet\" type=\"text/css\" href=\"//{$this->baseURL}/$type/$file\" />";
+		}
+
+		return $tags;
 	}
 
 }

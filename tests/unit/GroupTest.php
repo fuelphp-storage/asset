@@ -22,7 +22,7 @@ class GroupTest extends Test
 
 	protected function _before()
 	{
-		$this->group = new Group([]);
+		$this->group = new Group;
 	}
 
 	public function testAddFiles()
