@@ -24,6 +24,10 @@ class AssetTest extends Test
 	protected function _before()
 	{
 		$this->asset = new Asset('');
+
+		$this->asset->setBaseURL('test.com');
+		$this->asset->setDocroot(__DIR__.'/../_output/docroot');
+		$this->asset->addPath(__DIR__.'/../resources');
 	}
 
 	/**
@@ -112,16 +116,62 @@ class AssetTest extends Test
 
 	public function testGetSingleCss()
 	{
-		$this->asset->setBaseURL('test.com');
-		$this->asset->setDocroot(__DIR__.'/../_output/docroot');
-		$this->asset->addPath(__DIR__.'/../resources');
-
 		$this->asset->addFile('a.css', 'css');
 
 		$this->assertXmlStringEqualsXmlString(
 			'<link rel="stylesheet" type="text/css" href="//test.com/css/a.css" />',
 			$this->asset->get('css')
 		);
+	}
+
+	public function testGetMultipleCss()
+	{
+		$this->asset->addFile('a.css', 'css');
+		$this->asset->addFile('b.css', 'css');
+
+		$this->assertEquals(
+			'<link rel="stylesheet" type="text/css" href="//test.com/css/a.css" />'.
+			'<link rel="stylesheet" type="text/css" href="//test.com/css/b.css" />',
+			$this->asset->get('css')
+		);
+	}
+
+	public function testGetSingleJS()
+	{
+		$this->asset->addFile('a.js', 'js');
+
+		$this->assertXmlStringEqualsXmlString(
+			'<script type="text/javascript" src="//test.com/js/a.js"></script>',
+			$this->asset->get('js')
+		);
+	}
+
+	public function testGetAndSetType()
+	{
+		$this->assertInstanceOf(
+			'Fuel\Asset\Type\Js',
+			$this->asset->getType('js')
+		);
+
+		$this->assertInstanceOf(
+			'Fuel\Asset\Type\Css',
+			$this->asset->getType('css')
+		);
+
+		$this->asset->setType('test', 'stdClass');
+
+		$this->assertInstanceOf(
+			'stdClass',
+			$this->asset->getType('test')
+		);
+	}
+
+	/**
+	 * @expectedException IndexOutOfBoundsException
+	 */
+	public function testGetInvalidType()
+	{
+		$this->asset->getType('not here');
 	}
 
 }

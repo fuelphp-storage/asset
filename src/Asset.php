@@ -55,6 +55,12 @@ class Asset
 	protected $finder;
 
 	/**
+	 * Contains a list of asset type processors
+	 * @var AbstractType[]
+	 */
+	protected $types = [];
+
+	/**
 	 * @param string $docroot
 	 * @param string $baseURL
 	 */
@@ -77,6 +83,50 @@ class Asset
 		}
 
 		$this->baseURL = $baseURL;
+
+		$this->types = [
+			'js' => 'Fuel\Asset\Type\Js',
+			'css' => 'Fuel\Asset\Type\Css',
+		];
+	}
+
+	/**
+	 * Gets an instance of AbstractType for the given type.
+	 *
+	 * @param string $name
+	 *
+	 * @return AbstractType
+	 *
+	 * @since 2.0
+	 */
+	public function getType($name)
+	{
+		if ( ! isset($this->types[$name]))
+		{
+			throw new IndexOutOfBoundsException("ASS-002: [$name] is not a known asset type.");
+		}
+
+		$type = $this->types[$name];
+
+		if (is_string($type))
+		{
+			$this->types[$name] = new $type;
+		}
+
+		return $this->types[$name];
+	}
+
+	/**
+	 * Adds or replaces a type.
+	 *
+	 * @param string $name  Simple identifier
+	 * @param string $class FQCN or instance of AbstractType
+	 *
+	 * @since 2.0
+	 */
+	public function setType($name, $class)
+	{
+		$this->types[$name] = $class;
 	}
 
 	/**
@@ -190,6 +240,8 @@ class Asset
 	{
 		$group = $this->getGroup($type, $groupName);
 
+		$typeInstance = $this->getType($type);
+
 		// TODO: move file path fetching into filers so pre-processing can happen
 		$tags = '';
 
@@ -208,7 +260,7 @@ class Asset
 			copy($filePath, $outputDir.'/'.$file);
 
 			// Build the html tag
-			$tags .= "<link rel=\"stylesheet\" type=\"text/css\" href=\"//{$this->baseURL}/$type/$file\" />";
+			$tags .= $typeInstance->wrapFile("//{$this->baseURL}/$type/$file");
 		}
 
 		return $tags;
