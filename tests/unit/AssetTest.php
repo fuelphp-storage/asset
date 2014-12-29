@@ -13,8 +13,12 @@ namespace Fuel\Asset;
 use Codeception\TestCase\Test;
 use IndexOutOfBoundsException;
 
+/**
+ * Tests for main asset class
+ */
 class AssetTest extends Test
 {
+	private $docroot;
 
 	/**
 	 * @var Asset
@@ -23,11 +27,39 @@ class AssetTest extends Test
 
 	protected function _before()
 	{
+		$this->docroot = __DIR__ . '/../_output/docroot';
 		$this->asset = new Asset('');
 
 		$this->asset->setBaseURL('test.com');
-		$this->asset->setDocroot(__DIR__.'/../_output/docroot');
+		$this->asset->setDocroot($this->docroot);
 		$this->asset->addPath(__DIR__.'/../resources');
+	}
+
+	protected function _after()
+	{
+		$rmdir = function($dir) use (&$rmdir)
+		{
+			foreach (scandir($dir) as $item)
+			{
+				if ($item == '.' || $item == '..')
+				{
+					continue;
+				}
+				$path = $dir . DIRECTORY_SEPARATOR . $item;
+				if (is_dir($path))
+				{
+					$rmdir($path);
+					continue;
+				}
+				unlink($path);
+			}
+			rmdir($dir);
+		};
+
+		if (is_dir($this->docroot))
+		{
+			$rmdir($this->docroot);
+		}
 	}
 
 	/**

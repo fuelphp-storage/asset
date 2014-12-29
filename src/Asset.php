@@ -36,20 +36,20 @@ class Asset
 	protected $defaultGroupName = '__default__';
 
 	/**
-	 * Contains the path to our web root, this is where all asset files should be placed for serving
-	 *
+	 * Contains the path to our web root, this is where all asset files should be
+	 * placed for serving.
 	 * @var string
 	 */
 	protected $docroot;
 
 	/**
-	 * Contains the base URL of the site, this will be automatically detected if not set.
+	 * Contains the base URL of the site, this will be automatically detected if
+	 * not set.
 	 */
 	protected $baseURL;
 
 	/**
 	 * Contains the Finder instance used to locate asset files with.
-	 *
 	 * @var Finder
 	 */
 	protected $finder;
@@ -58,11 +58,15 @@ class Asset
 	 * Contains a list of asset type processors
 	 * @var AbstractType[]
 	 */
-	protected $types = [];
+	protected $types = [
+		'js' => 'Fuel\Asset\Type\Js',
+		'css' => 'Fuel\Asset\Type\Css',
+	];
 
 	/**
 	 * @param string $docroot
 	 * @param string $baseURL
+	 * @param Finder $finder
 	 */
 	public function __construct($docroot, $baseURL = null, Finder $finder = null)
 	{
@@ -83,11 +87,6 @@ class Asset
 		}
 
 		$this->baseURL = $baseURL;
-
-		$this->types = [
-			'js' => 'Fuel\Asset\Type\Js',
-			'css' => 'Fuel\Asset\Type\Css',
-		];
 	}
 
 	/**
@@ -96,6 +95,8 @@ class Asset
 	 * @param string $name
 	 *
 	 * @return AbstractType
+	 *
+	 * @throws IndexOutOfBoundsException
 	 *
 	 * @since 2.0
 	 */
@@ -233,6 +234,8 @@ class Asset
 	 *
 	 * @param string $type      Type of asset to fetch
 	 * @param string $groupName Optional groupName name to fetch
+	 *
+	 * @return string
 	 *
 	 * @since 2.0
 	 */
